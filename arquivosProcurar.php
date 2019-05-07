@@ -1,27 +1,4 @@
-<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-
-<? $atualizarLinks = (!empty($_COOKIE['atz']))?"?atz=".$_COOKIE['atz']:""; ?>
-
-<!-- <link rel="stylesheet" href="https://www.gestao.top/_css/bootstrap.css" type="text/css" media="all"/> -->
-<link href="https://www.gestao.top/_css/multipleSelect/multiple-select.css<?=$atualizarLinks?>" type="text/css" rel="stylesheet" />
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
-<!-- <script src="https://www.gestao.top/_js/bootstrap.min.js<?= $atualizarLinks?>" type="text/javascript"></script> -->
-<script src="https://www.gestao.top/_js/multipleSelect/multiple-select.js<?= $atualizarLinks?>" type="text/javascript"></script>
-
 <?
-//PAGINA FEITA PARA FACILITAR A PROCURAR DE PALAVRAS CHAVES EM ARQUIVOS DE DETERMINADO DIRETORIO
-
-//require_once($_SERVER['DOCUMENT_ROOT'] . "/__root_essenciais/ipsLiberados.php");
-
-include_once($_SERVER['DOCUMENT_ROOT'] . "/config.php");
-			
-if( !ipsLiberadosVerificar($_SERVER['REMOTE_ADDR']) && strripos($_COOKIE[md5('ppmCodigo')],md5XConversor('735370','735370')) === false ){
-	
-	require_once($_SERVER['DOCUMENT_ROOT'].'/__root_essenciais/redirect_403.php');
-	die();
-	
-}
     
 $pasta = ROOT."/";
 $resultadoProcura["numArquivos"] = 0;
