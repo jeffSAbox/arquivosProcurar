@@ -27,9 +27,16 @@ if( !permVerificar($permissao_desta_pag, false, false, true) ){
 <? $atualizarLinks = (!empty($_COOKIE['atz'])) ? "?atz=".$_COOKIE['atz'] : ""; ?>
 
 <link href="<?= $var_SESSION["ste_Link"] ?>_css/multipleSelect/multiple-select.css<?= $atualizarLinks ?>" type="text/css" rel="stylesheet" />
+<link href="<?= arquivo($var_SESSION['ste_Link'] 		. "_css/font-awesome/css/font-awesome.min.css") ?>" type="text/css" media="screen" rel="stylesheet" />
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
 <script src="<?= $var_SESSION["urlVersao"] 	. "_js/multipleSelect/multiple-select.js$atualizarLinks" ?>" type="text/javascript"></script>
+
+<style>
+	.color_red {
+		color: red;
+	}
+</style>
 
 <? 
 	
@@ -57,9 +64,12 @@ function buscarLinhaTrecho($conteudo, $palavraChave, $caseSensitive)
 		if( ($caseSensitive and strrpos($lin_codigo,$palavraChave) !== false and !empty($lin_codigo)) OR
 		 	(!$caseSensitive and strripos($lin_codigo,$palavraChave) !== false and !empty($lin_codigo)) )
 		{
+
+			$lin_codigo_marcado_vermelho = str_replace($palavraChave, "<span class='color_red'>$palavraChave</span>", $lin_codigo);
+
 			$retorno[] = [
-				'numero' => $lin_num,
-				'codigo' => $lin_codigo
+				'numero' => $lin_num+1,
+				'codigo' => $lin_codigo_marcado_vermelho
 			];
 		}
 	}
@@ -76,13 +86,22 @@ function subDiretorioVarrer($diretorioArray, $subPasta = "", $ignorar_Versao = f
 	global $palavraChave;
 	global $resultadoProcura;
 	global $caseSensitive;
+	global $ignorarXOLD;
 	global $opcaoProcura;
 
 	$subPasta 	= ( !empty($subPasta) )? $subPasta."/" : "";
 	
 	foreach( $diretorioArray as $val ){
 
-		if( strripos($val, ".php") !== false or strripos($val, ".js") !== false or strripos($val, ".css") !== false or strripos($val, ".ofx") !== false ){ // SE FOR UM ARQUIVO, FAZ O PROCESSO DE BUSCA
+		//	IGNORAR ARQUIVOS E PASTAS XOLD
+		if( $ignorarXOLD )
+		{
+			if( strripos($val, "xOLD") !== false ) continue;
+		}
+
+		// SE FOR UM ARQUIVO, FAZ O PROCESSO DE BUSCA
+		if( strripos($val, ".php") !== false or strripos($val, ".js") !== false or strripos($val, ".css") !== false or strripos($val, ".ofx") !== false )
+		{ 
 			
 			copy(ROOT."/_temp/index.php", ROOT."/_temp/procurar.txt");
 			chmod(ROOT."/_temp/procurar.txt", 0644);
@@ -187,23 +206,37 @@ function subDiretorioVarrer($diretorioArray, $subPasta = "", $ignorar_Versao = f
 			
 		</select>
 		
-		&nbsp;<input type="checkbox" name="case-sensitive" <? echo ($_REQUEST['case-sensitive']) ? "checked='checked'" : ""; ?> /> Case Sensitive
+		&nbsp;<input type="checkbox" name="case-sensitive" <?=($_REQUEST['case-sensitive']) ? "checked='checked'" : ""; ?> /> Case Sensitive
+		
+		&nbsp;<input type="checkbox" name="ignorar_xold" <?=(($_REQUEST['ignorar_xold'] and $_REQUEST['palavraChave']) or (!isset($_REQUEST['ignorar_xold']) and !isset($_REQUEST['palavraChave']))) ? "checked='checked'" : ""; ?> /> Ignorar arquivos e pastas xOLD
 		<br/><br/>
 		
 		Caminho: 	
 	
 		<select id="multiselect" name="caminhoInicio[]" class="multiselect campo_filtro " tyle="width: 315px; display: none;" onchange="ultimaVersaoJS(this.value,'<? echo $arrVersao[0] ?>')">
 
-			<option value="v/" 
+			<!-- <option value="v/" 
 							<? echo (in_array("v/", $arr_caminhosCookie)) ? "selected='selected'" : ""; ?>>/www/v/[n.nn] [digite a versao desejada] (opcional)	
-			</option>
+			</option> -->
 			
 			<option value="v/<? echo $arrVersao[0] ?>" 
 							<? echo (in_array("v/".$arrVersao[0], $arr_caminhosCookie) or empty($arr_caminhosCookie)) ? "selected='selected'" : ""; ?>>/www/v/<? echo $arrVersao[0] ?>/ -R (última versão do site, incluindo subpastas)
 			</option>
 		
-			<option value="v/<? echo $arrVersao[0] ?>/_templates/" 
-							<? echo (in_array("v/".$arrVersao[0]."/_templates/", $arr_caminhosCookie)) ? "selected='selected'" : ""; ?>>/www/v/<? echo $arrVersao[0] ?>/_templates/ -R (template específico, incluindo subpastas)
+			<option value="v/<? echo $arrVersao[0] ?>/_funcoes" 
+							<? echo (in_array("v/".$arrVersao[0]."/_funcoes", $arr_caminhosCookie)) ? "selected='selected'" : ""; ?>>/www/v/<? echo $arrVersao[0] ?>/_funcoes/ -R (template específico, incluindo subpastas)
+			</option>
+		
+			<option value="v/<? echo $arrVersao[0] ?>/_paginas" 
+							<? echo (in_array("v/".$arrVersao[0]."/_paginas", $arr_caminhosCookie)) ? "selected='selected'" : ""; ?>>/www/v/<? echo $arrVersao[0] ?>/_paginas/ -R (template específico, incluindo subpastas)
+			</option>
+		
+			<option value="v/<? echo $arrVersao[0] ?>/_templates" 
+							<? echo (in_array("v/".$arrVersao[0]."/_templates", $arr_caminhosCookie)) ? "selected='selected'" : ""; ?>>/www/v/<? echo $arrVersao[0] ?>/_templates/ -R (template específico, incluindo subpastas)
+			</option>
+		
+			<option value="v/<? echo $arrVersao[0] ?>/_painel" 
+							<? echo (in_array("v/".$arrVersao[0]."/_painel", $arr_caminhosCookie)) ? "selected='selected'" : ""; ?>>/www/v/<? echo $arrVersao[0] ?>/_painel/ -R (template específico, incluindo subpastas)
 			</option>
 		
 			<option value="/" <? echo (in_array("/", $arr_caminhosCookie)) ? "selected='selected'" : ""; ?>>/www/* (somente a raiz, excluindo subpastas)</option>
@@ -233,7 +266,27 @@ function subDiretorioVarrer($diretorioArray, $subPasta = "", $ignorar_Versao = f
 <script>
 	
 	const urlVersao = "<?= $var_SESSION['urlVersao']; ?>";
-	$.getScript(urlVersao+"painel/_js/cookie.js");
+	$.getScript(urlVersao + "painel/_js/cookie.js");
+
+
+	$.ajaxSetup({async:false});
+	$.getScript("/_js/clipboard/clipboard.min.js");
+	const clipboard = new Clipboard('.iconLink');
+	clipboard.on('success', function(e) {
+
+		let classNome = e.trigger.className.split(' ');
+		let elemento = $("."+classNome[1]);
+
+		$(elemento).css("color", "green");
+		
+		setTimeout(function(){
+
+			$(elemento).css("color", "blue");
+
+		}, 5000);
+
+	});
+	$.ajaxSetup({async:true});
 
 	// 	======================================v=============================================================== //
 	// Cria o multiselect
@@ -295,6 +348,7 @@ if( !empty($_REQUEST['palavraChave']) ){
 	$palavraChave 														= $_REQUEST['palavraChave'];
 	$caminhoInicio 														= $_REQUEST['caminhoInicio'];
 	$caseSensitive 														= $_REQUEST['case-sensitive'];
+	$ignorarXOLD														= $_REQUEST['ignorar_xold'];
 	$opcaoProcura 														= $_REQUEST['opcaoProcura'];
 	
 	$resultadoProcura["numArquivos"] 					= 0;
@@ -434,11 +488,22 @@ if( !empty($_REQUEST['palavraChave']) ){
 
 		echo "<br/><b style='color:blue'>Encontrei <i style='color:#FF0000'>'".$palavraChave."'</i> nos arquivos:</b> <br/><br/>";
 
-		foreach( $resultadoProcura["encontrados"] as $e ){	
+		foreach( $resultadoProcura["encontrados"] as $k => $e ){	
 
 			list($e_arquivo, $e_linhas) = $e;
 
-			echo $e_arquivo; echo "</br>";
+			echo $e_arquivo; 
+
+			echo '<textarea id="areaTextoLink_'.$k.'" style="width: 0px; opacity: 0; position: absolute; height: 0px;">'.strip_tags($e_arquivo).'</textarea>
+
+			<i data-clipboard-action="copy" 
+				 title="Clique para COPIAR o caminho do arquivo"
+				 data-clipboard-target="#areaTextoLink_'.$k.'" 
+				 class="iconLink copiaTextoLink_'.$k.' fa fa-clipboard" 
+				 style="margin-right: 4px; color: blue; font-size: 11px; cursor: pointer;" >
+			</i>';
+
+			echo "</br>";
 			
 			foreach ($e_linhas as $ln) {
 				echo "<span style='color:mediumvioletred'>" . $ln['numero'] . ":</span><span style='color:gray'> " . $ln['codigo'] . "</span><br/>";
